@@ -1,56 +1,54 @@
-(async function () {
-const url =    "http://localhost:8080/magnoliaAuthor/.rest/nodes/v1/tours/magnolia-travels?includeMetadata=true&depth=1";
-//const url = "http://localhost:8080/magnoliaAuthor/.rest/nodes/v1/website/react-minimal";
-/*
+const AppHelper = require("./helper");
 
-fetch("http://localhost:8080/magnoliaAuthor/.rest/nodes/v1/website/react-minimal", { headers: new Headers({ Authenticate: "Basic 1c2VyOnN1cGVydXNlcg=="})})*/
+const app = async function () {
+  const ROOT_URL = "http://localhost:8080/magnoliaAuthor/.rest/";
 
-  let title = document.getElementsByClassName("title")[0];
-  setTitle("Mangament API");
+  const toursApp = new AppHelper(`${ROOT_URL}delivery/tours`);
 
-  const loginButton = document.getElementById("loginButton");
-  const toolbar = document.getElementById("toolbar");
-
-  function setTitle(text) {
-    title.innerHTML = text;
-  }
-
-  function showLoginDialog(error) {
-    if (error) {
-      setTitle(error);
-      toolbar.classList.toggle("error");
-    }
-
-    let element = document.getElementById("login");
-    element.classList.toggle("show");
-
-    loginButton.addEventListener("click", () => {
-      element.classList.toggle("show");
-    });
-  }
-
-  async function getTours() {
-    let response = await fetch(url, {
+  toursApp.on("removed-from-featured", async (item) => {
+    console.log("removed from feature");
+    console.log(item);
+    // Tutorial: add code to change isFeature flag to false for given item
+    const URL = `${ROOT_URL}properties/v1/tours${item["@path"]}`;
+    const formData = new FormData();
+    formData.append("isFeatured", "true");
+    let response = await fetch(URL, {
+      mode: "cors",
+      redirect: "follow",
       credentials: "include",
+      method: "post",
       headers: new Headers({
-        Authenticate: "Basic " +  Buffer.from('superuser:superuser').toString('base64'),
+        Authorization: "Basic " + toursApp.getCredentials(),
+        Accept: "application/json",
+        "Content-Type": "application/json",
       }),
+      body: formData,
     });
+    // end tutorial
+  });
 
-    if (response.status == 401) {
-      console.log(response);
-      throw Error("Authentication Required");
-    }
-    let data = await response.json();
-    return data;
-  }
+  toursApp.on("added-to-featured", async (item) => {
+    console.log("added from feature");
+    console.log(item);
+    console.log(toursApp.getCredentials());
+    // Tutorial: add code to change isFeature flag to true for given item
+    const URL = `${ROOT_URL}properties/v1/tours${item["@path"]}`;
+    const formData = new FormData();
+    formData.append("isFeatured", "true");
+    let response = await fetch(URL, {
+      mode: "cors",
+      redirect: "follow",
+      credentials: "include",
+      method: "post",
+      headers: new Headers({
+        Authorization: "Basic " + toursApp.getCredentials(),
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      }),
+      body: formData,
+    });
+    // end tutorial
+  });
+};
 
-  try {
-    let data = await getTours();
-    title.innerHTML = " Authentication required";
-
-    title.innerHTML = title.innerHTML + " (" + data.nodes.length + ")";
-  } catch (e) {
-    showLoginDialog(e);
-  }
-})();
+document.addEventListener("DOMContentLoaded", app);
