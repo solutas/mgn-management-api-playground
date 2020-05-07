@@ -9,9 +9,20 @@ const app = async function () {
     console.log("removed from feature");
     console.log(item);
     // Tutorial: add code to change isFeature flag to false for given item
-    const URL = `${ROOT_URL}properties/v1/tours${item["@path"]}`;
-    const formData = new FormData();
-    formData.append("isFeatured", "true");
+    const URL = `${ROOT_URL}nodes/v1/tours${item["@path"]}`;
+    
+    let data = {
+      "properties": [
+        {
+          "name": "isFeatured",
+          "type": "Boolean",
+          "values": [
+            false
+          ]
+        }  
+      ]
+    };
+
     let response = await fetch(URL, {
       mode: "cors",
       redirect: "follow",
@@ -22,7 +33,7 @@ const app = async function () {
         Accept: "application/json",
         "Content-Type": "application/json",
       }),
-      body: formData,
+      body: JSON.stringify(data),
     });
     // end tutorial
   });
@@ -32,9 +43,20 @@ const app = async function () {
     console.log(item);
     console.log(toursApp.getCredentials());
     // Tutorial: add code to change isFeature flag to true for given item
-    const URL = `${ROOT_URL}properties/v1/tours${item["@path"]}`;
-    const formData = new FormData();
-    formData.append("isFeatured", "true");
+    const URL = `${ROOT_URL}nodes/v1/tours${item["@path"]}`;
+
+    let data = {
+      "properties": [
+        {
+          "name": "isFeatured",
+          "type": "Boolean",
+          "values": [
+            true
+          ]
+        }  
+      ]
+    };
+
     let response = await fetch(URL, {
       mode: "cors",
       redirect: "follow",
@@ -45,7 +67,7 @@ const app = async function () {
         Accept: "application/json",
         "Content-Type": "application/json",
       }),
-      body: formData,
+      body: JSON.stringify(data),
     });
     // end tutorial
   });
