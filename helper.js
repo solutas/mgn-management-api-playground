@@ -5,7 +5,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
     listToursApi = "http://localhost:8080/magnoliaAuthor/.rest/delivery/tours"
   ) {
     super();
-    let initalTitle = "Mangament API";
+    this.initialTitle = "Mangament API";
     this.listToursApi = listToursApi;
     this.titleElement = document.getElementsByClassName("title")[0];
     this.toolbarElement = document.getElementById("toolbar");
@@ -39,7 +39,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
     this.featured = [];
     this.original = [];
 
-    this.setTitle(initalTitle);
+    this.setTitle(this.initialTitle);
     this.init();
     this.getTours().catch((e) => {
       this.showLoginDialog(e);
@@ -215,6 +215,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
 
       this.toolbarElement.classList.toggle("error");
       this.getTours();
+      this.setTitle(this.initialTitle);
       this.toggleLoginDialog();
       this.emit("dataupdate");
     });
