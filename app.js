@@ -3,7 +3,7 @@ const AppHelper = require("./helper");
 const app = async function () {
   const ROOT_URL = "http://localhost:8080/magnoliaAuthor/.rest/";
 
-  const toursApp = new AppHelper(`${ROOT_URL}delivery/shit`);
+  const toursApp = new AppHelper(`${ROOT_URL}delivery/tours`);
 
   toursApp.on("removed-from-featured", async (item) => {
     console.log("removed from feature");

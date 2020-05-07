@@ -200,7 +200,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
       this.setTitle(error);
       this.toolbarElement.classList.toggle("error");
     }
-    this.form.addEventListener("submit", (e) => {
+    this.formElement.addEventListener("submit", (e) => {
       e.preventDefault();
       let username = this.userNameField.value;
       let password = this.passwordField.value;
@@ -214,7 +214,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
       localStorage.setItem("token", this.credentials.token);
 
       this.toolbarElement.classList.toggle("error");
-      this.toggleDialog();
+      this.toggleLoginDialog();
       this.emit("dataupdate");
     });
   }
