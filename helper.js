@@ -5,7 +5,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
     listToursApi = "http://localhost:8080/magnoliaAuthor/.rest/delivery/tours"
   ) {
     super();
-    this.initialTitle = "Mangament API";
+    this.initialTitle = "Mangolia Management API Demo";
     this.listToursApi = listToursApi;
     this.titleElement = document.getElementsByClassName("title")[0];
     this.toolbarElement = document.getElementById("toolbar");
@@ -51,11 +51,11 @@ module.exports = class MagnoliaApp extends EventEmitter {
         this.original = newdata.sort(this.sortByCreatedDate);
 
         this.tours = this.original.filter(
-          (item) => !item.isFeatured && item.isFeatured !== "true"
+          (item) => !item.isFeatured && (item.isFeatured !== "true" || item.isFeatured)
         );
 
         this.featured = this.original.filter(
-          (item) => item.isFeatured && item.isFeatured === "true"
+          (item) => item.isFeatured && (item.isFeatured !== "true" || item.isFeatured)
         );
 
         if (!this.isInitialized()) {
