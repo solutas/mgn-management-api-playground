@@ -190,7 +190,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
   setSelectionEnabled(selectionEnabled = false) {
     this.selectionEnabled = selectionEnabled;
   }
-  
+
   updateApp() {}
 
   /**
@@ -278,7 +278,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
     this.updateTitle();
 
     [...document.getElementsByClassName("tour")].forEach((touritem) => {
-      if (selectionEnabled) {
+      if (this.selectionEnabled) {
         touritem.addEventListener("click", (el) => {
           el.preventDefault();
           el.stopPropagation();
