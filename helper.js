@@ -38,6 +38,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
     this.selected = [];
     this.featured = [];
     this.original = [];
+    this.selectionEnabled = false;
 
     this.setTitle(this.initialTitle);
     this.init();
@@ -59,7 +60,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
 
         if (!this.isInitialized()) {
           this.setInitialized(true);
-          console.log("init call");
+
           let myNotification = new Notification("Tours are loaded", {
             body:
               this.featured.length +
@@ -87,7 +88,6 @@ module.exports = class MagnoliaApp extends EventEmitter {
     });
     this.on("dataupdate", this.updateView);
   }
-
 
   getCredentials() {
     return this.credentials.token;
@@ -187,6 +187,10 @@ module.exports = class MagnoliaApp extends EventEmitter {
     this.dialogElement.classList.toggle("show");
   }
 
+  setSelectionEnabled(selectionEnabled = false) {
+    this.selectionEnabled = selectionEnabled;
+  }
+  
   updateApp() {}
 
   /**
@@ -274,18 +278,20 @@ module.exports = class MagnoliaApp extends EventEmitter {
     this.updateTitle();
 
     [...document.getElementsByClassName("tour")].forEach((touritem) => {
-      touritem.addEventListener("click", (el) => {
-        el.preventDefault();
-        el.stopPropagation();
-        if (this.selected.indexOf(touritem.dataset.id) === -1) {
-          this.selected.push(touritem.dataset.id);
-        } else {
-          this.selected = this.selected.filter(
-            (item) => item !== touritem.dataset.id
-          );
-        }
-        this.emit("dataupdate");
-      });
+      if (selectionEnabled) {
+        touritem.addEventListener("click", (el) => {
+          el.preventDefault();
+          el.stopPropagation();
+          if (this.selected.indexOf(touritem.dataset.id) === -1) {
+            this.selected.push(touritem.dataset.id);
+          } else {
+            this.selected = this.selected.filter(
+              (item) => item !== touritem.dataset.id
+            );
+          }
+          this.emit("dataupdate");
+        });
+      }
 
       touritem.addEventListener(
         "dragstart",
