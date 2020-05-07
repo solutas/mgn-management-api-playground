@@ -214,6 +214,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
       localStorage.setItem("token", this.credentials.token);
 
       this.toolbarElement.classList.toggle("error");
+      this.getTours();
       this.toggleLoginDialog();
       this.emit("dataupdate");
     });
