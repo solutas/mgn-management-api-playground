@@ -2,11 +2,13 @@ const EventEmitter = require("events");
 
 module.exports = class MagnoliaApp extends EventEmitter {
   constructor(
-    listToursApi = "http://localhost:8080/magnoliaAuthor/.rest/delivery/tours"
+    listToursApi = "http://localhost:8080/magnoliaAuthor/.rest/delivery/tours",
+    nodesApiEndpoint = null
   ) {
     super();
     this.initialTitle = "Mangolia Management API Demo";
     this.listToursApi = listToursApi;
+    this.nodesApiEndpoint = nodesApiEndpoint;
     this.titleElement = document.getElementsByClassName("title")[0];
     this.toolbarElement = document.getElementById("toolbar");
     this.formElement = document.getElementById("loginForm");
@@ -32,6 +34,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
     this.toggleLoginDialog = this.toggleLoginDialog.bind(this);
     this.isInitialized = this.isInitialized.bind(this);
     this.setInitialized = this.setInitialized.bind(this);
+    this.initDragAndDrop = this.initDragAndDrop.bind(this);
     this.statusInit = false;
     this.tours = [];
 
@@ -51,12 +54,18 @@ module.exports = class MagnoliaApp extends EventEmitter {
         this.original = newdata.sort(this.sortByCreatedDate);
 
         this.tours = this.original.filter(
-          (item) => !item.isFeatured && (item.isFeatured !== "true" || item.isFeatured)
+          (item) =>
+            !item.isFeatured ||
+            item.isFeatured !== "true" ||
+            item.isFeatured === false
         );
 
         this.featured = this.original.filter(
-          (item) => item.isFeatured && (item.isFeatured !== "true" || item.isFeatured)
+          (item) =>
+            item.isFeatured &&
+            (item.isFeatured === "true" || item.isFeatured === true)
         );
+        console.log(this.featured);
 
         if (!this.isInitialized()) {
           this.setInitialized(true);
@@ -101,7 +110,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
     return this.statusInit;
   }
 
-  init() {
+  initDragAndDrop() {
     document
       .getElementById("tours-featured-drops")
       .addEventListener("drop", (e) => {
@@ -152,10 +161,16 @@ module.exports = class MagnoliaApp extends EventEmitter {
         e.dataTransfer.dropEffect = "move";
         e.preventDefault();
       });
-
+  }
+  init() {
+    this.initDragAndDrop();
     const { setInterval } = require("electron").remote.require("timers");
 
-    setInterval(() => this.getTours(), 10000);
+   // setInterval(() => this.getTours(), 5000);
+  }
+
+  notify(title="Notification", body) {
+    new Notification(title, { body });
   }
 
   setTitle(title) {
@@ -204,7 +219,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
       this.setTitle(error);
       this.toolbarElement.classList.toggle("error");
     }
-    this.formElement.addEventListener("submit", (e) => {
+    this.formElement.addEventListener("submit", async (e) => {
       e.preventDefault();
       let username = this.userNameField.value;
       let password = this.passwordField.value;
@@ -216,12 +231,33 @@ module.exports = class MagnoliaApp extends EventEmitter {
         "base64"
       );
       localStorage.setItem("token", this.credentials.token);
-
-      this.toolbarElement.classList.toggle("error");
-      this.getTours();
-      this.setTitle(this.initialTitle);
-      this.toggleLoginDialog();
-      this.emit("dataupdate");
+      try {
+        let response = await fetch(this.nodesApiEndpoint, {
+          mode: "cors",
+          redirect: "follow",
+          credentials: "include",
+          headers: new Headers({
+            Authorization: "Basic " + this.credentials.token,
+            "User-Agent": "Magnolia-Mangement-Demo-App",
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          }),
+        });
+        if (response.status === 200) {
+          this.toolbarElement.classList.toggle("error");
+          //this.initDragAndDrop();
+          //await this.getTours();
+          //this.setTitle(this.initialTitle);
+          //this.toggleLoginDialog();
+          window.location.reload();
+          //this.emit("dataupdate");
+        } else {
+          this.credentials.token = null;
+          throw Error("Wrong credentials");
+        }
+      } catch (e) {
+        this.setTitle(e);
+      }
     });
   }
 
@@ -229,8 +265,8 @@ module.exports = class MagnoliaApp extends EventEmitter {
     if (!this.credentials.token) {
       throw Error("Please login first");
     }
-
-    let response = await fetch(this.listToursApi, {
+console.log(this.listToursApi + "?" + new Date().getTime());
+    let response = await fetch(this.listToursApi + "?q=", {
       mode: "cors",
       redirect: "follow",
       credentials: "include",
@@ -246,8 +282,9 @@ module.exports = class MagnoliaApp extends EventEmitter {
       throw Error("Authentication Required");
     }
     let data = await response.json();
-
-    this.emit("newdata", data.results);
+    if (data.results.length > this.original.length) {
+      this.emit("newdata", data.results);
+    }
   }
 
   renderItem(item) {
@@ -256,7 +293,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
 
     return `<div class='tour tour--${status}' draggable="true" data-id='${item["@id"]}'>
             <div class='tour__checkbox tour__checkbox--${status}'></div>
-            <div class='tour__body'><h1>${item["name"]}</h1></div>
+            <div class='tour__body'><h1>${item["name"]} ${item.isFeatured}</h1></div>
             </div>`;
   }
 
