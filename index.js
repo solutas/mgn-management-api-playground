@@ -11,7 +11,6 @@ function createWindow() {
       webSecurity: false,
     },
   });
-  // you can uncomment this to open the dev console
   //win.webContents.openDevTools();
 
   // and load the index.html of the app.
@@ -39,4 +38,3 @@ app.on("activate", () => {
     createWindow();
   }
 });
-
