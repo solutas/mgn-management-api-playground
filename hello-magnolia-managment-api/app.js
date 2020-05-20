@@ -49,9 +49,6 @@ const app = async function () {
   });
 
   toursApp.on("added-to-featured", async (item) => {
-    console.log("added from feature");
-    console.log(item);
-    console.log(toursApp.getCredentials());
     // Tutorial: add code to change isFeature flag to true for given item
     const URL = `${ROOT_URL}nodes/v1/tours${item["@path"]}`;
 
@@ -89,7 +86,7 @@ const app = async function () {
       );
     }
     // end tutorial
-  });  
+  });
 };
 
 document.addEventListener("DOMContentLoaded", app);

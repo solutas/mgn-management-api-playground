@@ -78,18 +78,11 @@ module.exports = class MagnoliaApp extends EventEmitter {
               " Tours were loaded",
           });
 
-          myNotification.onclick = () => {
-            console.log("Notification clicked");
-          };
+          
         } else {
           let myNotification = new Notification("new tour added", {
             body: this.original[0].name,
-          });
-
-          myNotification.onclick = () => {
-            console.log("Notification clicked");
-          };
-          console.log("send notification");
+          });          
         }
 
         this.emit("dataupdate");
@@ -164,9 +157,6 @@ module.exports = class MagnoliaApp extends EventEmitter {
   }
   init() {
     this.initDragAndDrop();
-    const { setInterval } = require("electron").remote.require("timers");
-
-   // setInterval(() => this.getTours(), 5000);
   }
 
   notify(title="Notification", body) {
@@ -245,12 +235,7 @@ module.exports = class MagnoliaApp extends EventEmitter {
         });
         if (response.status === 200) {
           this.toolbarElement.classList.toggle("error");
-          //this.initDragAndDrop();
-          //await this.getTours();
-          //this.setTitle(this.initialTitle);
-          //this.toggleLoginDialog();
           window.location.reload();
-          //this.emit("dataupdate");
         } else {
           this.credentials.token = null;
           throw Error("Wrong credentials");
@@ -265,7 +250,6 @@ module.exports = class MagnoliaApp extends EventEmitter {
     if (!this.credentials.token) {
       throw Error("Please login first");
     }
-console.log(this.listToursApi + "?" + new Date().getTime());
     let response = await fetch(this.listToursApi + "?q=", {
       mode: "cors",
       redirect: "follow",
@@ -340,3 +324,4 @@ console.log(this.listToursApi + "?" + new Date().getTime());
     });
   }
 };
+
